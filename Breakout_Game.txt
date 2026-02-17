@@ -1,0 +1,690 @@
+// WRITE OCNMMENCOMMEN TS
+
+/*
+/ CREATORS: JASON, PAUL, ADRIAN
+/
+/ GAME NAME: SPACE INVADERS
+*/
+
+
+var checkBullet = false;
+var checkBullet2 = false;
+var ememySEEZ = 20;
+var startBton;
+var bullet;
+var bullet2;
+var startTxt;
+var outLine;
+var maxX = getWidth();
+var maxY = getHeight();
+var centerX = maxX / 2;
+var centerY = maxY / 2;
+var enemy;
+var scoreBox;
+var scoreBoxI;
+var scoreBoxO;
+var score = 0;
+var expand = false;
+var scorePad;
+var scoreTxtU;
+var scoreTxt;
+var checkTime = false;
+var endGmeTxt;
+var loseGmeTxt;
+var endGmeTxt2;
+var loseGmeTxt2;
+var background;
+var firstBullet = false;
+var secondBullet = false;
+var endGameD = false;
+var TIME = 60000;
+var BUTTON_LENGTH = getWidth();
+var BUTTON_WIDTH = getHeight() - getHeight() / 16;
+var contrast;
+var color = Color.WHITE;
+var cColor = Color.BLACK;
+var createBackGround = false;
+var textTime;
+var calculateTime = TIME / 1000;
+var enemyLength = 40;
+var ENEMY_PER_ROW;
+var NUM_ROWS;
+var heart;
+var body;
+var wings1;
+var wings2;
+
+function start(){
+    gameStart();
+}
+
+
+function drawBody(){
+    body = new Polygon();
+    body.addPoint(25 / 3, -25 / 3);
+    body.addPoint(0, 25 / 3);
+    body.addPoint(15 / 3, 35 / 3);
+    body.addPoint(25 / 3, 50 / 3);
+    body.addPoint(35 /3 , 35/3);
+    body.addPoint(50/3, 25/3);
+    body.addPoint(25/3, -25/3);
+    body.setColor(Color.red);
+    body.move(getWidth() / 2 - 25/3, getHeight() - 50 / 3);
+    add(body);
+    heart = new Circle(10 /3);
+    heart.setPosition(25/3, 10/3);
+    heart.setColor(Color.cyan);    
+    heart.move(getWidth() / 2 - 25/3, getHeight() - 50 / 3);
+    add(heart);
+    
+}
+
+function drawWingLeft(){
+    wings1 = new Polygon();
+    wings1.addPoint(25/3, 15/3);
+    wings1.addPoint(90/3, 20/3);
+    wings1.addPoint(100/3, 0);
+    wings1.addPoint(100/3,25/3);
+    wings1.addPoint(35/3,35/3);
+    wings1.addPoint(25/3, 50/3);
+    wings1.setColor(Color.black);
+    wings1.move(getWidth() / 2 - 25/3, getHeight() - 50 / 3);
+    add(wings1);
+}
+
+function drawWingRight(){
+    wings2 = new Polygon();
+    wings2.addPoint(25/3, 15/3);
+    wings2.addPoint(-40/3, 20/3);
+    wings2.addPoint(-50/3, 0);
+    wings2.addPoint(-50/3,25/3);
+    wings2.addPoint(15/3,35/3);
+    wings2.addPoint(25/3, 50/3);
+    wings2.setColor(Color.black);
+    wings2.move(getWidth() / 2 - 25/3, getHeight() - 50 / 3);
+    add(wings2);
+}
+
+
+
+function drawEnemy(x, y, color){
+    enemy = new Polygon();
+    enemy.addPoint(40, 5);
+    enemy.addPoint(40, 0);
+    enemy.addPoint(30, 5);
+    enemy.addPoint(20, 0);
+    enemy.addPoint(20, 5);
+    enemy.addPoint(10, 10);
+    enemy.addPoint(20, 20);
+    enemy.addPoint(30, 40);
+    enemy.addPoint(40, 20);
+    enemy.addPoint(50, 10);
+    enemy.setPosition(x, y);
+    enemy.setColor(color);
+    add(enemy);
+}
+
+function rowOfEnemies(y, color){
+    var x = -10;
+    var X_GAP = 0;
+    for(var i = 0; i < ENEMY_PER_ROW; i++){
+        drawEnemy(x + X_GAP, y, color);
+        x += enemyLength;
+        X_GAP += (maxX - ENEMY_PER_ROW * enemyLength) / (ENEMY_PER_ROW - 1);
+    }
+}
+
+function spawnEnemies(rows, color){
+    var y = 0;
+    var Y_GAP = 0;
+    for(var i = 0; i < rows; i++){
+        rowOfEnemies(y + Y_GAP, color);
+        y += enemyLength;
+        Y_GAP += enemyLength / 8;
+    }
+}
+
+
+
+function gameStart(){
+    mouseClickMethod(clickEvent);
+    NUM_ROWS = Randomizer.nextInt(1, 4);
+    ENEMY_PER_ROW = Randomizer.nextInt(3, 7);
+    outlined();
+    startButton();
+    startText();
+    
+}
+
+function startButton(){
+    startBton = new Rectangle(100, 35);
+    startBton.setPosition(getWidth()/2 - 50, getHeight()/3 + 7);
+    startBton.setColor("#757575");
+    add(startBton);
+}
+function startText(){
+   startTxt = new Text("Start", "20pt Arial");
+   startTxt.setPosition(getWidth()/2 - 30, getHeight()/2 - 45);
+   startTxt.setColor(Color.BLUE);
+   add(startTxt);
+}
+function outlined(){
+    outLine = new Rectangle(150, 50);
+    outLine.setPosition(getWidth()/2 - 75, getHeight()/3);
+    outLine.setColor("#4C4646");
+    add(outLine);
+}
+function clickEvent(click){
+    if (click.getX() >= startBton.getX() && click.getX() <= startBton.getX() + 100 && click.getY() >= startBton.getY() && click.getY() <= startBton.getY() + 35){
+        removeAll();
+        gameLoop();
+    }
+}
+function makeBullet(width, height){
+    bullet = new Rectangle(width, height);
+    bullet.setPosition(body.getX() + 12.5, body.getY() - 10);
+    bullet.setColor(cColor);
+    add(bullet);
+    
+    
+}
+function makeBullet2(width, height){
+    bullet2 = new Rectangle(width, height);
+    bullet2.setPosition(body.getX() - 2.5, body.getY() - 10);
+    bullet2.setColor(cColor);
+    add(bullet2);
+    
+}
+
+function moveBullet(){
+    checkBullet = true;
+     bullet.move(0, -10);
+     bulletPhysics();
+     scoreUpdater();
+    checkWalls();
+}
+function moveBullet2(){
+      checkBullet2 = true;
+      bullet2.move(0, -10);
+      bulletPhysics2();
+      scoreUpdater();
+       checkWalls2();
+
+}
+
+function bulletPhysics(){
+    var elem = getElementAt(bullet.getX() - 10, bullet.getY() - 0.1);
+    var elem2 = getElementAt(bullet.getX() + 15, bullet.getY() - 0.1);
+    var elem3 = getElementAt(bullet.getX(), bullet.getY() - 0.1);
+    var elem4 = getElementAt(bullet.getX() + 5, bullet.getY() - 0.1);
+    if (createBackGround == false){
+        if (elem != null && elem2 == null && elem != scoreBox && elem != scorePad && elem != scoreBoxI && elem != scoreBoxO && elem != scoreTxt && elem != scoreTxtU && elem != textTime){
+        stopTimer(moveBullet);
+        remove(bullet);
+        remove(elem);
+         score++;
+         checkBullet = false;
+         scoreCheckerz();
+         endGame();
+         firstBullet = false;
+
+        }else if (elem2 != null && elem == null && elem2 != scoreBox && elem2 != scorePad && elem2 != scoreBoxI && elem2 != scoreBoxO && elem2 != scoreTxt && elem2 != scoreTxtU && elem2 != textTime){
+            stopTimer(moveBullet);
+            remove(bullet);
+            remove(elem2);
+            score++;
+            checkBullet = false;
+            scoreCheckerz();
+            endGame();
+            firstBullet = false;
+        }else if (elem3 != null && elem4 != null && elem3 != scoreBox && elem3 != scorePad && elem3 != scoreBoxI && elem3 != scoreBoxO && elem3 != scoreTxt && elem3!= scoreTxtU && elem3 != textTime && elem4 != scoreBox && elem4 != scorePad && elem4 != scoreBoxI && elem4 != scoreBoxO && elem4 != scoreTxt && elem4 != scoreTxtU && elem4 != textTime){
+            stopTimer(moveBullet);
+            remove(bullet);
+            remove(elem3);
+            remove(elem4);
+             score++;
+             checkBullet = false;
+             scoreCheckerz();
+             endGame();
+             firstBullet = false;
+        }
+    }else if (createBackGround == true){
+        if (elem != null && elem2 == background && elem != scoreBox && elem != scorePad && elem != scoreBoxI && elem != scoreBoxO && elem != scoreTxt && elem != scoreTxtU && elem != textTime && elem != background){
+        stopTimer(moveBullet);
+        remove(bullet);
+        remove(elem);
+         score++;
+         checkBullet = false;
+         scoreCheckerz();
+         endGame();
+         firstBullet = false;
+
+        }else if (elem2 != null && elem == background && elem2 != scoreBox && elem2 != scorePad && elem2 != scoreBoxI && elem2 != scoreBoxO && elem2 != scoreTxt && elem2 != scoreTxtU && elem2 != textTime && elem2 != background){
+            stopTimer(moveBullet);
+            remove(bullet);
+            remove(elem2);
+            score++;
+            checkBullet = false;
+            scoreCheckerz();
+            endGame();
+            firstBullet = false;
+        }else if (elem3 != null && elem4 != null && elem3 != scoreBox && elem3 != scorePad && elem3 != scoreBoxI && elem3 != scoreBoxO && elem3 != scoreTxt && elem3!= scoreTxtU && elem3 != textTime && elem4 != scoreBox && elem4 != scorePad && elem4 != scoreBoxI && elem4 != scoreBoxO && elem4 != scoreTxt && elem4 != scoreTxtU && elem4 != textTime && elem3 != background && elem4 != background){
+            stopTimer(moveBullet);
+            remove(bullet);
+            remove(elem3);
+            remove(elem4);
+             score++;
+             checkBullet = false;
+             scoreCheckerz();
+             endGame();
+             firstBullet = false;
+        }
+    }
+    
+}
+function bulletPhysics2(){
+    var elem = getElementAt(bullet2.getX() - 10, bullet2.getY() - 0.1);
+    var elem2 = getElementAt(bullet2.getX() + 15, bullet2.getY() - 0.1);
+     var elem3 = getElementAt(bullet2.getX(), bullet2.getY() - 0.1);
+    var elem4 = getElementAt(bullet2.getX() + 5, bullet2.getY() - 0.1);
+    if (createBackGround == false){
+        if (elem != null && elem2 == null && elem != scoreBox && elem != scorePad && elem != scoreBoxI && elem != scoreBoxO && elem != scoreTxt && elem != scoreTxtU && elem != textTime){
+        stopTimer(moveBullet2);
+        remove(bullet2);
+        remove(elem);
+         score++;
+         checkBullet2 = false;
+         scoreCheckerz();
+        endGame();
+        secondBullet = false;
+        }else if (elem2 != null && elem == null && elem2 != scoreBox && elem2 != scorePad && elem2 != scoreBoxI && elem2 != scoreBoxO && elem2 != scoreTxt && elem2 != scoreTxtU && elem2 != textTime){
+            stopTimer(moveBullet2);
+            remove(bullet2);
+            remove(elem2);
+             score++;
+             checkBullet2 = false;
+             scoreCheckerz();
+            endGame();
+            secondBullet = false;
+        }else if (elem3 != null && elem4 != null && elem3 != scoreBox && elem3 != scorePad && elem3 != scoreBoxI && elem3 != scoreBoxO && elem3 != scoreTxt && elem3 != scoreTxtU && elem3 != textTime && elem4 != scoreBox && elem4 != scorePad && elem4 != scoreBoxI && elem4 != scoreBoxO && elem4 != scoreTxt && elem4 != scoreTxtU){
+            stopTimer(moveBullet2);
+            remove(bullet2);
+            remove(elem3);
+            remove(elem4);
+            score++;
+            checkBullet2 = false;
+            scoreCheckerz();
+            endGame();
+           secondBullet = false;
+        }
+    }else if (createBackGround == true){
+        if (elem != null && elem2 == background && elem != scoreBox && elem != scorePad && elem != scoreBoxI && elem != scoreBoxO && elem != scoreTxt && elem != scoreTxtU && elem != textTime && elem != background){
+            stopTimer(moveBullet2);
+            remove(bullet2);
+            remove(elem);
+            score++;
+            checkBullet2 = false;
+            scoreCheckerz();
+            endGame();
+           secondBullet = false;
+
+        }else if (elem2 != null && elem == background && elem2 != scoreBox && elem2 != scorePad && elem2 != scoreBoxI && elem2 != scoreBoxO && elem2 != scoreTxt && elem2 != scoreTxtU && elem2 != textTime && elem2 != background){
+           stopTimer(moveBullet2);
+            remove(bullet2);
+            remove(elem2);
+            score++;
+            checkBullet2 = false;
+            scoreCheckerz();
+            endGame();
+           secondBullet = false;
+        }else if (elem3 != null && elem4 != null && elem3 != scoreBox && elem3 != scorePad && elem3 != scoreBoxI && elem3 != scoreBoxO && elem3 != scoreTxt && elem3!= scoreTxtU && elem3 != textTime && elem4 != scoreBox && elem4 != scorePad && elem4 != scoreBoxI && elem4 != scoreBoxO && elem4 != scoreTxt && elem4 != scoreTxtU && elem4 != textTime && elem3 != background && elem4 != background){
+            stopTimer(moveBullet2);
+            remove(bullet2);
+            remove(elem3);
+            remove(elem4);
+            score++;
+            checkBullet2 = false;
+            scoreCheckerz();
+            endGame();
+           secondBullet = false;
+        }
+    }
+}
+    
+
+function moveEvent(key){
+    if (endGameD == false){
+        if (key.keyCode == Keyboard.letter('K')){
+            if (checkBullet == false && firstBullet == false){
+                secondBullet = true;
+                 makeBullet(5, 20);
+                 setTimer(moveBullet, 10);
+
+              
+            }else if (checkBullet == false && firstBullet == true){
+                if (bullet2.getY() < body.getY() - 30){
+                    makeBullet(5, 20);
+                    setTimer(moveBullet, 10);
+
+                }
+            }
+            
+            
+        }
+        if (key.keyCode == Keyboard.letter('J')){
+            if (checkBullet2 == false && secondBullet == false){
+                firstBullet = true;
+                makeBullet2(5, 20);
+                setTimer(moveBullet2, 10);
+                 
+            }else if (checkBullet2 == false && secondBullet == true){
+                if (bullet.getY() < body.getY() - 30){
+                    makeBullet2(5, 20);
+                    setTimer(moveBullet2, 10);
+                   
+                }
+                 
+            }
+            
+            
+        }
+        if (key.keyCode == Keyboard.letter('A') && wings1.getX() - 65 / 3 > 0){
+                wings1.move(-10, 0);
+                wings2.move(-10, 0);
+                body.move(-10, 0);
+                heart.move(-10, 0);
+                
+            
+    		
+    	}
+    	
+    	if (key.keyCode == Keyboard.letter('D') && wings2.getX() + 125 / 3 < getWidth()){
+    	        wings1.move(10, 0);
+    	        wings2.move(10, 0);
+    	        body.move(10, 0);
+    	        heart.move(10, 0);
+    		
+    	}
+    }
+    
+    
+}
+
+
+
+function checkWalls(){
+    if (bullet.getY() < 0){
+        remove(bullet);
+        stopTimer(moveBullet);
+        checkBullet = false;
+        firstBullet = false;
+    }
+    
+}
+function checkWalls2(){
+    if (bullet2.getY() < 0){
+        remove(bullet2);
+        stopTimer(moveBullet2);
+        checkBullet2 = false;
+        secondBullet = false;
+    }
+}
+
+
+function makeScoreBox(){
+    scoreBox = new Rectangle(20, 100);
+    scoreBox.setPosition(getWidth() - 20, getHeight()/2 - 50);
+    add(scoreBox);
+    scoreBoxI = new Rectangle(5, 52);
+    scoreBoxI.setPosition(getWidth() - 13, getHeight()/2 - 50);
+    scoreBoxI.setColor(Color.WHITE);
+    scoreBoxI.rotate(-15)
+    add(scoreBoxI);
+    scoreBoxO = new Rectangle(5, 50);
+    scoreBoxO.setPosition(getWidth() - 13, getHeight()/2);
+    scoreBoxO.setColor(Color.GREEN);
+    scoreBoxO.rotate(15)
+    add(scoreBoxO);
+}
+function expandedScoreBox(){
+    if (checkTime == false){
+         setTimer(scoreBoxAnimation, 20);
+    }
+    expansionCheck();
+}
+
+function scoreBoxAnimation(){
+    if (expand == true){
+        if (scoreBox.getX() > getWidth() - 80){
+            scoreBox.move(-5, 0);
+            scoreBoxI.move(-5, 0);
+            scoreBoxO.move(-5, 0);
+            scorePad.move(-5, 0);
+            scoreTxt.move(-5, 0);
+            scoreTxtU.move(-5, 0);
+            contrast.move(-5, 0);
+            
+        }
+    }
+    if (expand == false){
+        if (scoreBox.getX() < getWidth() - 20){
+            scoreBox.move(5, 0);
+            scoreBoxI.move(5, 0);
+            scoreBoxO.move(5, 0);
+            scorePad.move(5, 0);
+            scoreTxt.move(5, 0);
+            scoreTxtU.move(5, 0);
+            contrast.move(5, 0);
+        }
+    }
+    checkTime = true;
+}
+function expansionCheck(){
+    if (expand == false){
+        expand = true;
+        scoreBoxI.rotate(30);
+        scoreBoxO.rotate(-30);
+    }else if (expand == true){
+        expand = false;
+        scoreBoxI.rotate(-30);
+        scoreBoxO.rotate(30);
+    }
+}
+function createScorePad(){
+    scorePad = new Rectangle(60, 100);
+    scorePad.setPosition(getWidth(), getHeight()/2 - 50);
+    scorePad.setColor("#2B3856");
+    add(scorePad);
+}
+function expandScoreBox(e){
+    if (e.getX() >= scoreBox.getX() && e.getX() <= scoreBox.getX() + 20 && e.getY() >= scoreBox.getY() && e.getY() <= scoreBox.getY() + 100){
+        expandedScoreBox();
+        scoreCheckerz();
+    }
+    if (e.getX() >= contrast.getX() && e.getX() <= contrast.getX() <= contrast.getX() + 10 && e.getY() >= contrast.getY() && e.getY() <= contrast.getY() + 10){
+        if (color == Color.WHITE){
+            createBackGround = true;
+            color = Color.BLACK;
+            cColor = Color.WHITE;
+            contrast.setColor(color);
+            wings1.setColor(Color.WHITE);
+            wings2.setColor(Color.WHITE);
+            body.setColor(Color.GREEN);
+            heart.setColor("#E34234");
+            textTime.setColor(Color.WHITE);
+            if (checkBullet == true){
+                bullet.setColor(Color.WHITE);
+            }
+            if (checkBullet2 == true){
+                bullet2.setColor(Color.WHITE);
+            }
+            backGround();
+        }else if (color == Color.BLACK){
+            createBackGround = false;
+            color = Color.WHITE;
+            cColor = Color.BLACK;
+            contrast.setColor(color);
+            wings1.setColor(Color.BLACK);
+            wings2.setColor(Color.BLACK);
+            body.setColor(Color.RED);
+            heart.setColor(Color.CYAN);
+            textTime.setColor(Color.BLACK);
+            if (checkBullet == true){
+                 bullet.setColor(Color.BLACK);
+            }
+            if (checkBullet2 == true){
+                bullet2.setColor(Color.BLACK);
+            }
+            remove(background);
+        }
+    }
+}
+function createScore(){
+    scoreTxtU = new Text("You Score", "8pt Arial");
+    scoreTxtU.setPosition(getWidth() + 6, getHeight()/2 - 20);
+    scoreTxtU.setColor(Color.WHITE);
+    add(scoreTxtU);
+    scoreTxt = new Text(score, "20pt Arial");
+    scoreTxt.setPosition(getWidth() + 20, getHeight()/2 + 10);
+    scoreTxt.setColor(Color.WHITE);
+    add(scoreTxt);
+}
+function scoreUpdater(){
+   
+    scoreTxt.setText(score);
+}
+
+function scoreCheckerz(){
+     if (score == 10 || score == 100 || score == 1000){
+        scoreTxt.move(-7, 0);
+        
+    }
+}
+function endGame(){
+    if (score == ENEMY_PER_ROW * NUM_ROWS){
+        endGameD = true;
+        stopTimer(changeTextTime);
+        stopTimer(moveBullet);
+        stopTimer(moveBullet2);
+        removeAll();
+        backGround();
+        winText();
+        setTimer(endGameAnimated, 10);
+        mouseClickMethod(restartGame);
+        
+        
+    }
+}
+function restartGame(){
+    removeAll();
+    cColor = Color.BLACK;
+    color = Color.WHITE;
+    score = 0;
+    if (expand == true){
+         expand = false;
+         setTimer(scoreBoxAnimation, 20);
+    }
+    stopTimer(scoreBoxAnimation);
+    checkTime = false;
+    endGameD = false;
+    firstBullet = false;
+    secondBullet = false;
+    checkBullet = false;
+    checkBullet2 = false;
+    createBackGround = false;
+    gameStart();
+    
+}
+function loseText(){
+    loseGmeTxt = new Text("You Lost", "50pt PressStart2P");
+    loseGmeTxt.setPosition(getWidth()/2 - 125, 0);
+    loseGmeTxt.setColor(Color.WHITE);
+    add(loseGmeTxt);
+    loseGmeTxt2 = new Text("Click to continue", "20pt PressStart2P");
+    loseGmeTxt2.setPosition(-200, getHeight()/1.7);
+    loseGmeTxt2.setColor(Color.WHITE);
+    add(loseGmeTxt2);
+}
+function loseGameAnimated(){
+    if (loseGmeTxt.getY() != getHeight()/2){
+        loseGmeTxt.move(0, 5);
+    }else if (loseGmeTxt2.getX() != getWidth()/2 - 95){
+        loseGmeTxt2.move(5, 0);
+        
+    }else{
+        stopTimer(loseGameAnimated);
+    }
+}
+function winText(){
+    endGmeTxt = new Text("You Win", "50pt PressStart2P");
+    endGmeTxt.setPosition(getWidth()/2 - 125, 0);
+    endGmeTxt.setColor(Color.WHITE);
+    add(endGmeTxt);
+    endGmeTxt2 = new Text("Click to continue", "20pt PressStart2P");
+    endGmeTxt2.setPosition(-200, getHeight()/1.7);
+    endGmeTxt2.setColor(Color.WHITE);
+    add(endGmeTxt2);
+}
+function endGameAnimated(){
+    if (endGmeTxt.getY() != getHeight()/2){
+        endGmeTxt.move(0, 5);
+    }else if (endGmeTxt2.getX() != getWidth()/2 - 95){
+        endGmeTxt2.move(5, 0);
+        
+    }else{
+        stopTimer(endGameAnimated);
+    }
+}
+function backGround(){
+    background = new Rectangle(getWidth(), getHeight());
+    background.layer = -1;
+    add(background);
+}
+
+function createTextTime(){
+    textTime = new Text("Time: " + calculateTime);
+    textTime.setPosition(maxX - 105, getHeight() - 50);
+    textTime.setColor(Color.black);
+    add(textTime);
+}
+
+function changeTextTime(){
+    calculateTime -= 1
+    textTime.setText("Time: " + calculateTime);
+    if(calculateTime <= 0){
+        endGameD = true;
+        stopTimer(moveBullet);
+        stopTimer(moveBullet2);
+        removeAll();
+        backGround();
+        loseText();
+        setTimer(loseGameAnimated, 10);
+        mouseClickMethod(restartGame);
+        stopTimer(changeTextTime);
+        remove(textTime);
+    }
+}
+function highContrastMode(){
+    contrast = new Rectangle(10, 10);
+    contrast.setColor(color);
+    contrast.setPosition(getWidth() + 40, getHeight()/1.85);
+    add(contrast);
+}
+
+
+function gameLoop(){
+    drawWingLeft();
+    drawWingRight();
+    drawBody();
+    calculateTime = TIME / 1000;
+    spawnEnemies(NUM_ROWS, Color.green);
+    createTextTime();
+    setTimer(changeTextTime, 1000);
+    keyDownMethod(moveEvent);
+    makeScoreBox();
+    createScorePad();
+    createScore();
+    mouseClickMethod(expandScoreBox);
+    highContrastMode();
+
+}
